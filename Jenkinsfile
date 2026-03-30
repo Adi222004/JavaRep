@@ -2,31 +2,25 @@ pipeline {
     agent any
 
     stages {
-        stage('Fetch') {
+        stage('1. Checkout') {
             steps {
-                echo 'Fetch from Repo.'
                 git 'https://github.com/Adi222004/JavaRep.git'
             }
         }
-        stage('Build') {
+        stage('2. Build Image') {
             steps {
-                echo 'Building in Progress...'
-                bat 'javac devops.java'
+                bat 'docker build -t myweb .'
             }
         }
-        stage('Execute') {
+        stage('3. Stop all Containers') {
             steps {
-                echo 'Execute the Program'
-                bat 'java devops'
+                bat 'docker stop mycount || exit 0'
+                bat 'docker rm mycont || exit 0'
             }
         }
-    }
-    post{
-        success{
-            echo 'Pipeline built successfully'
-        }
-        failure{
-            echo 'Pipeline is failed'
+        stage('4. Run the Image - Containerize'){
+            bat 'docker run -d -p 8000:80 --name mycont myweb'
         }
     }
 }
+ 
